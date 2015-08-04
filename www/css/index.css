@@ -86,7 +86,6 @@ h1 {
     padding: 0 11px 0 13px;
     text-overflow: ellipsis;
     width: 60%;
-    display: none;
 }
 
 #pac-input:focus {
@@ -95,6 +94,22 @@ h1 {
 
 .pac-container {
     font-family: Roboto;
+}
+
+#search-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 10px;
+    z-index: 99;
+    background-color: #660000;
+}
+
+#locate-btn {
+    position: absolute;
+    bottom: 100px;
+    right: 18px;
+    z-index: 99;
+    background-color: #ff6600;
 }
 
 #type-selector {

@@ -18,6 +18,7 @@
  */
 var map;
 var currentLocation;
+var currentLocationMarker = null;
 var accuracyCircle = null;
 var destination;
 var watchID = null;
@@ -52,6 +53,8 @@ function setupMap() {
     var mapOptions = {
         zoom: 11,
         center: bburg,
+        zoomControl: false,
+        streetViewControl: false
     };
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     // NOTE: The url provided to the kml MUST be publicly accessible
@@ -125,20 +128,24 @@ function setupMap() {
     });
 
     //Hide and unhide the menus and search box when the map is tapped
-    document.getElementById('map-canvas').addEventListener('click', toggleDisplay, false);
+    document.getElementById('search-btn').addEventListener('click', toggleDisplay, false);
+    //Go to current location
+    document.getElementById('locate-btn').addEventListener('click', locateMe, false);
 
 }
 
 function toggleDisplay(event) {
-    if (this.id != 'map-canvas') {
-        return;
-    }
     var searchBox = document.getElementById('pac-input');
     if (searchBox.style.display == 'none') {
         searchBox.style.display = 'block';
     } else {
         searchBox.style.display = 'none';
     }
+}
+
+function locateMe(event) {
+    map.setZoom(17);
+    map.panTo(currentLocation.position);
 }
 
 function onLocationSuccess(position) {
@@ -155,9 +162,22 @@ function onLocationSuccess(position) {
             strokeColor: 'blue',
             strokeOpacity: 0.1
         });
+        currentLocationMarker = new google.maps.Marker({
+            position: centerPosition,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 4,
+                strokeColor: 'white',
+                strokeWeight: 1,
+                fillColor: 'blue',
+                fillOpacity: 0.8
+            },
+            map: map
+        })
     } else {
         accuracyCircle.setCenter(centerPosition);
         accuracyCircle.setRadius(position.coords.accuracy);
+        currentLocationMarker.setPosition(centerPosition);
     }
 }
 
