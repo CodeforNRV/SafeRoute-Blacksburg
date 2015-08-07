@@ -18,7 +18,7 @@
  */
 var map;
 var currentLocation;
-var currentLocationMarker = null;
+var roadsLayer = null;
 var accuracyCircle = null;
 var destination;
 var watchID = null;
@@ -58,10 +58,46 @@ function setupMap() {
     };
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     // NOTE: The url provided to the kml MUST be publicly accessible
-    var safeStreetOverlay = new google.maps.KmlLayer({
-        url: "https://github.com/ghthor/safe_walk_blacksburg/raw/master/www/safewalk.kml",
+    /*var safeStreetOverlay = new google.maps.KmlLayer({
+        url: "http://dry-castle-3287.herokuapp.com/overlay.kml",
     });
-    safeStreetOverlay.setMap(map);
+    safeStreetOverlay.setMap(map);*/
+    var path = window.location.href.replace('index.html', '')
+    roadsLayer = new google.maps.Data();
+    roadsLayer.loadGeoJson(path + 'roads.json');
+    roadsLayer.setStyle(function(feature) {
+        var streetlights = feature.getProperty('sl');
+        var sidewalks = feature.getProperty('sw');
+        var speedlimit = feature.getProperty('spd');
+        var color = 'red';
+        var size = 1;
+        if (speedlimit == 0) {
+            size = 1.5;
+        } else if (speedlimit <= 25) {
+            color = sidewalks == true ? 'green' : 'yellow';
+        } else {
+            size = 1.5;
+            if (sidewalks == true && streetlights == true) {
+                color = 'green';
+            } else if (sidewalks == true && streetlights == false) {
+                color = 'yellow'
+            } else {
+                color = 'red'
+            }
+        }
+        return {
+            strokeColor: color,
+            strokeWeight: size,
+            strokeOpacity: 0.75
+        }
+    });
+    roadsLayer.addListener('click', function(event) {
+        var speed = event.feature.getProperty('spd');
+        var sidewalk = event.feature.getProperty('sw');
+        var streetlight = event.feature.getProperty('sl');
+        alert('Speed: ' + speed + ', Sidewalk: ' + sidewalk + ', Streetlight: ' + streetlight);
+    });
+    roadsLayer.setMap(map);
 
     var locationIcon = {
         url: 'img/location.png',
@@ -162,22 +198,9 @@ function onLocationSuccess(position) {
             strokeColor: 'blue',
             strokeOpacity: 0.1
         });
-        currentLocationMarker = new google.maps.Marker({
-            position: centerPosition,
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 4,
-                strokeColor: 'white',
-                strokeWeight: 1,
-                fillColor: 'blue',
-                fillOpacity: 0.8
-            },
-            map: map
-        })
     } else {
         accuracyCircle.setCenter(centerPosition);
         accuracyCircle.setRadius(position.coords.accuracy);
-        currentLocationMarker.setPosition(centerPosition);
     }
 }
 
