@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 var map;
 var currentLocation;
 var roadsLayer = null;
@@ -51,7 +52,7 @@ var app = {
 function setupMap() {
     var bburg = new google.maps.LatLng(37.230618, -80.415357);
     var mapOptions = {
-        zoom: 11,
+        zoom: 13,
         center: bburg,
         zoomControl: false,
         streetViewControl: false
@@ -162,6 +163,13 @@ function setupMap() {
         var bounds = map.getBounds();
         searchBox.setBounds(bounds);
     });
+    //On zoom change, we can set the weight of our streets higher
+    google.maps.event.addListener(map, 'zoom_changed', function() {
+        var zoomScale = 1;
+        if (map.getZoom() >= 16) {
+            zoomScale = 3;
+        }
+    });
 
     //Hide and unhide the menus and search box when the map is tapped
     document.getElementById('search-btn').addEventListener('click', toggleDisplay, false);
@@ -176,6 +184,13 @@ function toggleDisplay(event) {
         searchBox.style.display = 'block';
     } else {
         searchBox.style.display = 'none';
+    }
+}
+
+function styleRoads() {
+    var zoomScale = 1;
+    if (map.getZoom() >= 16) {
+        zoomScale = 2;
     }
 }
 
