@@ -4,8 +4,8 @@
     <description>
         Hello World sample application that responds to the deviceready event.
     </description>
-    <author email="support@phonegap.com" href="http://phonegap.com">
-        PhoneGap Team
+    <author email="support@codefornrv.org" href="http://codefornrv.org">
+        Code for New River Valley
     </author>
     <content src="index.html" />
     <preference name="permissions" value="none" />
@@ -23,7 +23,7 @@
     <preference name="disable-cursor" value="false" />
     <preference name="android-minSdkVersion" value="7" />
     <preference name="android-installLocation" value="auto" />
-    <gap:plugin name="org.apache.cordova.battery-status" />
+    <!--<gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.camera" />
     <gap:plugin name="org.apache.cordova.media-capture" />
     <gap:plugin name="org.apache.cordova.console" />
@@ -33,14 +33,14 @@
     <gap:plugin name="org.apache.cordova.device-orientation" />
     <gap:plugin name="org.apache.cordova.dialogs" />
     <gap:plugin name="org.apache.cordova.file" />
-    <gap:plugin name="org.apache.cordova.file-transfer" />
+    <gap:plugin name="org.apache.cordova.file-transfer" />-->
     <gap:plugin name="org.apache.cordova.geolocation" />
-    <gap:plugin name="org.apache.cordova.globalization" />
+    <!--<gap:plugin name="org.apache.cordova.globalization" />
     <gap:plugin name="org.apache.cordova.inappbrowser" />
     <gap:plugin name="org.apache.cordova.media" />
     <gap:plugin name="org.apache.cordova.network-information" />
     <gap:plugin name="org.apache.cordova.splashscreen" />
-    <gap:plugin name="org.apache.cordova.vibration" />
+    <gap:plugin name="org.apache.cordova.vibration" />-->
     <icon src="icon.png" />
     <icon gap:platform="android" gap:qualifier="ldpi" src="www/res/icon/android/icon-36-ldpi.png" />
     <icon gap:platform="android" gap:qualifier="mdpi" src="www/res/icon/android/icon-48-mdpi.png" />
