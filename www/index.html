@@ -1,60 +1,56 @@
 <!DOCTYPE html>
-<!--
-    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
-
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
--->
-<html>
+<html lang="en">
 <head>
-    <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
-    <link rel="import" href="bower_components/paper-header-panel/index.html">
-    <link rel="import" href="bower_components/paper-input/paper-input.html">
-    <link rel="import" href="bower_components/paper-fab/paper-fab.html">
-    <link rel="import" href="bower_components/iron-icons/iron-icons.html">
-    <link rel="import" href="bower_components/iron-icons/maps-icons.html">
 
-    <title>Hello World</title>
+    <title>WalkBlacksburg</title>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHGXXbCN6EbaMwJS3A5wf0gniggDpSEn4&libraries=places"></script>
 </head>
-<body class="fullbleed layout vertical">
-    <paper-header-panel class="red x-scope paper-header-panel-0">
-        <paper-toolbar style="background:#ff6600;">
-            <div>
-                <paper-input label="Input label"></paper-input>
-                <!--<input id="pac-input" type="text" placeholder="Destination">-->
+<body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar-header pull-left">
+            <div class="dropdown">
+                <button class="btn dropdown-toggle" type="button" id="main-menu" data-toggle="dropdown" aria aria-haspopup="true" aria-expanded="true">
+                    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="main-menu">
+                    <li><a href="">Settings</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="">Help</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="">Report a problem</a></li>
+                </ul>
             </div>
-        </paper-toolbar>
-        <div id="dropShadow" class="style-scope paper-header-panel has-shadow"></div>
-        <div id="map-canvas" class="fit"></div>
-        <paper-fab id="locate-btn" mini icon="maps:my-location"></paper-fab>
-        <paper-fab id="search-btn" icon="search"></paper-fab>
-    </paper-header-panel>
+
+        </div>
+        <div id="dest-search" class="navbar-header pull-right dest-search">
+            <form id="search-form">
+                <input id="search-terms" class="dest-search-input" type="text" name="search-terms" value="" placeholder="Destination...?" />
+                <input class="dest-search-submit" type="submit" value="">
+                <span id="search-btn" class="glyphicon glyphicon-search dest-icon-search" aria-hidden="true"></span>
+
+            </form>
+        </div>
+    </nav>
+    <div class="container-fluid fill">
+        <div id="map-canvas"></div>
+        <button type="button" id="locate-btn" class="btn btn-circle" aria-label="GPS Location">
+            <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
+        </button>
+    </div>
 
 
-
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
+
     <script type="text/javascript">
         app.initialize();
     </script>
