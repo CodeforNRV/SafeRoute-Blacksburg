@@ -124,6 +124,9 @@ input[type="search"].dest-search-input {
     text-align: center;
     cursor: pointer;
 }
+#search-btn {
+    z-index:10000;
+}
 .dest-search-submit {
     background: #fff; /* IE needs this */
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)"; /* IE 8 */

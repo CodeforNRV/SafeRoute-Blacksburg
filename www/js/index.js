@@ -66,7 +66,10 @@ function setupMap() {
     safeStreetOverlay.setMap(map);*/
     var path = window.location.href.replace('index.html', '')
     roadsLayer = new google.maps.Data();
-    roadsLayer.loadGeoJson(path + 'roads.json');
+    $.getJSON("roads.json", function(data) {
+        roadsLayer.addGeoJson(data);
+    });
+
     roadsLayer.setStyle(function(feature) {
         var streetlights = feature.getProperty('sl');
         var sidewalks = feature.getProperty('sw');
@@ -176,24 +179,20 @@ $('#locate-btn').on('click', function (e) {
     locateMe();
 });
 
-
-/*$('body').on('click touchstart', function(e) {
-    e.stopPropagation();
-    $('#dest-search').removeClass('dest-search-open');
-});*/
-
-$('#dest-search').on('click', function(e) {
+$('#search-btn').on('click', function(e) {
     e.stopPropagation();
     if (!$('#dest-search').hasClass('dest-search-open')) {
         $('#dest-search').addClass('dest-search-open');
+        //$('.dropdown-menu').slideUp(); Need to do this 'properly'
         setTimeout(function() {
             $('#search-terms').focus();
         }, 100);
     } else {
-        return;
         if ($('#search-terms').val() == "") {
             $('#dest-search').removeClass('dest-search-open');
             $('#search-terms').blur();
+        } else {
+            $('#search-form').submit();
         }
 
     }
