@@ -1,4 +1,4 @@
-# SafeRoute-Blacksburg
+# WalkBlacksburg
 An app designed to show safer walking routes around Blacksburg, VA
 
 Developed using PhoneGap, this is a split off of the initial project repository SafeWalk Blacksburg: https://github.com/CodeforNRV/safe_walk_blacksburg. Due to another app used in the No Hokie Left Behind suite using the moniker SafeWalk, we decided to change the name. This respository will also represent the PhoneGap application portion of the project, while another repository will hold the server-side processing portion or the project.
