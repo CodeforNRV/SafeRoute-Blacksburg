@@ -22,11 +22,11 @@
                 <ul class="dropdown-menu" aria-labelledby="main-menu">
                     <li><a href="">Crime data</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a href="">Settings</a></li>
+                    <li><a data-toggle="modal" data-target="#settingsModal">Settings</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a href="">Help</a></li>
+                    <li><a data-toggle="modal" data-target="#helpModal">Help</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a href="">Report a problem</a></li>
+                    <li><a  data-toggle="modal" data-target="#reportModal">Report a problem</a></li>
                 </ul>
             </div>
 
@@ -40,6 +40,8 @@
             </form>
         </div>
     </nav>
+
+
     <div class="container-fluid fill">
         <div id="map-canvas"></div>
         <button type="button" id="locate-btn" class="btn btn-circle" aria-label="GPS Location">
@@ -47,9 +49,56 @@
         </button>
     </div>
 
+    <div class="modal fade menu-modal" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="settingsModalLabel">Settings</h4>
+                </div>
+                <div class="modal-body">
+                    We'll put some settings here
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade menu-modal" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="helpModalLabel">Help</h4>
+                </div>
+                <div class="modal-body">
+                    We'll put some help info here
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal menu-modal" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="reportModalLabel">Report a problem</h4>
+                </div>
+                <div class="modal-body">
+                    We'll put a form or something to report an issue here
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="bower_components/remarkable-bootstrap-notify/bootstrap-notify.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/suncalc/suncalc.js"></script>
     <script type="text/javascript" src="js/index.js"></script>

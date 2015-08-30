@@ -18,7 +18,8 @@
  */
 
 var map;
-var currentLocation;
+var currentLocation = null;
+var locationWarning = false;
 var roadsLayer = null;
 var accuracyCircle = null;
 var destination;
@@ -46,6 +47,7 @@ var app = {
     onDeviceReady: function() {
         console.log('Device ready');
         watchID = navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, {timeout: 5000});
+        document.addEventListener("backbutton", onBackKeyDown, false);
     }
 
 };
@@ -55,7 +57,7 @@ function setupMap() {
     var mapOptions = {
         zoom: 13,
         center: bburg,
-        zoomControl: false,
+        zoomControl: true,
         streetViewControl: false
     };
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
@@ -115,21 +117,11 @@ function setupMap() {
         var speed = event.feature.getProperty('spd');
         var sidewalk = event.feature.getProperty('sw');
         var streetlight = event.feature.getProperty('sl');
-        alert('Speed: ' + speed + ', Sidewalk: ' + sidewalk + ', Streetlight: ' + streetlight);
+        //Add a dialog/popup to indicate the details of the clicked road segment
+        //alert('Speed: ' + speed + ', Sidewalk: ' + sidewalk + ', Streetlight: ' + streetlight);
     });
     roadsLayer.setMap(map);
 
-    var locationIcon = {
-        url: 'img/location.png',
-        size: new google.maps.Size(15, 15),
-        anchor: new google.maps.Point(7,7)
-    };
-    currentLocation = new google.maps.Marker({
-        position: bburg,
-        map: map,
-        title: 'Your location',
-        icon: locationIcon
-    });
     // Create the search box and link it to the UI element.
     var input = /** @type {HTMLInputElement} */(
         document.getElementById('search-terms'));
@@ -263,13 +255,47 @@ function styleRoads() {
 }
 
 function locateMe() {
-    map.setZoom(17);
-    map.panTo(currentLocation.position);
+    if (currentLocation === null) {
+        watchID = navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, {timeout: 5000});
+        $.notify({
+            // options
+            message: 'Trying to get your location...'
+        },{
+            // settings
+            type: 'info',
+            placement: {
+                from: "bottom",
+                align: "center"
+            },
+            animate: {
+                enter: "animated fadeInUp",
+                exit: "animated fadeOutDown"
+            },
+            allow_dismiss: false,
+            delay: 3000
+        });
+    } else {
+        map.setZoom(17);
+        map.panTo(currentLocation.position);
+    }
 }
 
 function onLocationSuccess(position) {
     var centerPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-    //console.log('Lat: ' + position.coords.latitude + ', Lng: ' + position.coords.longitude);
+    if (currentLocation === null) {
+        var locationIcon = {
+            url: 'img/location.png',
+            size: new google.maps.Size(15, 15),
+            anchor: new google.maps.Point(7,7)
+        };
+        currentLocation = new google.maps.Marker({
+            position: centerPosition,
+            map: map,
+            title: 'Your location',
+            icon: locationIcon
+        });
+    }
+
     currentLocation.setPosition(centerPosition);
     if (accuracyCircle === null) {
         accuracyCircle = new google.maps.Circle({
@@ -288,6 +314,39 @@ function onLocationSuccess(position) {
 }
 
 function onLocationError(error) {
-    //Add notification that unable to get current location
-    console.log('code: ' + error.code + '\n message: ' + error.message + '\n');
+    console.log('onLocationError, code: ' + error.code + '\n message: ' + error.message + '\n');
+    currentLocation.setMap(null);
+    $.notify({
+        // options
+        message: 'Could not get your location'
+    }, {
+        // settings
+        type: 'warning',
+        placement: {
+            from: "bottom",
+            align: "center"
+        },
+        animate: {
+            enter: "animated fadeInUp",
+            exit: "animated fadeOutDown"
+        },
+        allow_dismiss: false,
+        delay: 4000
+    });
 }
+
+function onBackKeyDown(e) {
+    //if no mod
+    /*if (($("#myModal").data('bs.modal')).isShown) {
+        e.preventDefault();
+        $('#myModal').modal('hide');
+    }*/
+    e.preventDefault();
+    if ($('.menu-modal').is(':visible')) {
+        $('.menu-modal').modal('hide');
+    } else {
+        navigator.app.exitApp();
+    }
+}
+
+
