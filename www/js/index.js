@@ -70,6 +70,8 @@ function setupMap() {
         roadsLayer.addGeoJson(data);
     });
 
+    var night = isNight();
+
     roadsLayer.setStyle(function(feature) {
         var streetlights = feature.getProperty('sl');
         var sidewalks = feature.getProperty('sw');
@@ -77,17 +79,30 @@ function setupMap() {
         var color = 'red';
         var size = 1;
         if (speedlimit == 0) {
-            size = 1.5;
+            //Greenways are set at 0 speed
+            if (night) {
+                size = 1.5;
+            } else {
+                color = 'green';
+            }
         } else if (speedlimit <= 25) {
             color = sidewalks == true ? 'green' : 'yellow';
         } else {
             size = 1.5;
-            if (sidewalks == true && streetlights == true) {
-                color = 'green';
-            } else if (sidewalks == true && streetlights == false) {
-                color = 'yellow'
+            if (night) {
+                if (sidewalks == true && streetlights == true) {
+                    color = 'green';
+                } else if (sidewalks == true && streetlights == false) {
+                    color = 'yellow'
+                } else {
+                    color = 'red'
+                }
             } else {
-                color = 'red'
+                if (sidewalks == true) {
+                    color = 'green';
+                } else {
+                    color = 'red';
+                }
             }
         }
         return {
@@ -221,6 +236,15 @@ function mobilecheck() {
     return check;
 }
 
+function isNight() {
+    var today = new Date();
+    var times = SunCalc.getTimes(today, 37.23, -80.4178);
+    if (today > times.sunrise && today < times.sunset) {
+        return false;
+    } else {
+        return true;
+    }
+}
 
 function toggleDisplay(event) {
     var searchBox = document.getElementById('search-terms');
@@ -264,5 +288,6 @@ function onLocationSuccess(position) {
 }
 
 function onLocationError(error) {
-    alert('code: ' + error.code + '\n message: ' + error.message + '\n');
+    //Add notification that unable to get current location
+    console.log('code: ' + error.code + '\n message: ' + error.message + '\n');
 }
