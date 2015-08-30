@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="org.codefornrv.saferouteblacksburg" version="0.1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>SafeRoute Blacksburg</name>
+<widget id="org.codefornrv.walkblacksburg" version="0.1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>WalkBlacksburg</name>
     <description>
         App to walk around Blacksburg, VA
     </description>

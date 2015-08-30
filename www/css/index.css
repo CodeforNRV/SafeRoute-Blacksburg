@@ -158,7 +158,8 @@ input[type="search"].dest-search-input {
 }
 
 .container-fluid {
-    padding: 0px;
+    padding: 65px 0 0 0;
+
 }
 
 .fill {
@@ -297,4 +298,27 @@ h1 {
 .blink {
     animation:fade 3000ms infinite;
     -webkit-animation:fade 3000ms infinite;
+}
+
+.modal {
+    padding-left: 0;
+}
+.modal-dialog {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-content {
+    height: 100%;
+    border-radius: 0;
+}
+
+[data-notify="container"] {
+    opacity: 0.9;
+    width: 60%;
+    text-align: center;
+}
+.alert {
+    padding: 5px;
 }
