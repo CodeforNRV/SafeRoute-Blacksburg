@@ -19,12 +19,14 @@
 
 var map;
 var currentLocation = null;
-var locationWarning = false;
 var roadsLayer = null;
 var accuracyCircle = null;
-var destination;
 var watchID = null;
 var markers = [];
+var settings = {
+    isNight: isNight(),
+    alternateColors: false
+};
 
 var app = {
     // Application Constructor
@@ -72,53 +74,15 @@ function setupMap() {
         roadsLayer.addGeoJson(data);
     });
 
-    var night = isNight();
-
     roadsLayer.setStyle(function(feature) {
-        var streetlights = feature.getProperty('sl');
-        var sidewalks = feature.getProperty('sw');
-        var speedlimit = feature.getProperty('spd');
-        var color = 'red';
-        var size = 1;
-        if (speedlimit == 0) {
-            //Greenways are set at 0 speed
-            if (night) {
-                size = 1.5;
-            } else {
-                color = 'green';
-            }
-        } else if (speedlimit <= 25) {
-            color = sidewalks == true ? 'green' : 'yellow';
-        } else {
-            size = 1.5;
-            if (night) {
-                if (sidewalks == true && streetlights == true) {
-                    color = 'green';
-                } else if (sidewalks == true && streetlights == false) {
-                    color = 'yellow'
-                } else {
-                    color = 'red'
-                }
-            } else {
-                if (sidewalks == true) {
-                    color = 'green';
-                } else {
-                    color = 'red';
-                }
-            }
-        }
-        return {
-            strokeColor: color,
-            strokeWeight: size,
-            strokeOpacity: 0.75
-        }
+        return setMapStyle(feature);
     });
     roadsLayer.addListener('click', function(event) {
-        var speed = event.feature.getProperty('spd');
-        var sidewalk = event.feature.getProperty('sw');
-        var streetlight = event.feature.getProperty('sl');
-        //Add a dialog/popup to indicate the details of the clicked road segment
-        //alert('Speed: ' + speed + ', Sidewalk: ' + sidewalk + ', Streetlight: ' + streetlight);
+        $('#roadName').html(event.feature.getProperty('lb'));
+        $('#speedlimit').html(event.feature.getProperty('s'));
+        $('#sidewalks').html(trueFalseConverter(event.feature.getProperty('sw')));
+        $('#streetlights').html(trueFalseConverter(event.feature.getProperty('sl')));
+        $('#queryModal').modal('show');
     });
     roadsLayer.setMap(map);
 
@@ -221,6 +185,23 @@ $('.dropdown').on('hide.bs.dropdown', function(e){
     $(this).find('.dropdown-menu').first().stop(true, true).slideUp();
 });
 
+$('#isNight-checkbox').bootstrapSwitch('state', settings.isNight, true);
+$('#isNight-checkbox').on('switchChange.bootstrapSwitch', function(event, state) {
+    settings.isNight = state;
+    roadsLayer.setStyle(function(feature) {
+        return setMapStyle(feature);
+    });
+});
+
+$('#alternateColors-checkbox').on('switchChange.bootstrapSwitch', function(event, state) {
+    settings.alternateColors = state;
+    roadsLayer.setStyle(function(feature) {
+        return setMapStyle(feature);
+    });
+});
+
+$('.styled-switch').bootstrapSwitch();
+
 
 function mobilecheck() {
     var check = false;
@@ -236,6 +217,12 @@ function isNight() {
     } else {
         return true;
     }
+}
+
+function trueFalseConverter(value) {
+    console.log(value);
+    if (value === true) { return "Yes"; }
+    else return "No";
 }
 
 function toggleDisplay(event) {
@@ -334,6 +321,29 @@ function onLocationError(error) {
         delay: 4000
     });
 }
+
+function setMapStyle(feature) {
+    var altColors = {'red': '#d7191c', 'yellow': '#fc8d59', 'green': '#2c7bb6'};
+    if (settings.isNight) {
+        if (settings.alternateColors) {
+            color = altColors[feature.getProperty('n')];
+        } else {
+            color = feature.getProperty('n');
+        }
+    } else {
+        if (settings.alternateColors) {
+            color = altColors[feature.getProperty('d')];
+        } else {
+            color = feature.getProperty('d');
+        }
+    }
+    return {
+        strokeColor: color,
+        strokeWeight: 2,
+        strokeOpacity: 0.75
+    }
+}
+
 
 function onBackKeyDown(e) {
     //if no mod

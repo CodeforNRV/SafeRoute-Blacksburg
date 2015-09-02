@@ -303,13 +303,13 @@ h1 {
 .modal {
     padding-left: 0;
 }
-.modal-dialog {
+.menu-modal .modal-dialog {
     height: 100%;
     padding: 0;
     margin: 0;
 }
 
-.modal-content {
+.menu-modal .modal-content {
     height: 100%;
     border-radius: 0;
 }
@@ -321,4 +321,14 @@ h1 {
 }
 .alert {
     padding: 5px;
+}
+
+.modal-paragraph {
+    text-transform: none;
+    font-size: 14px;
+}
+
+#settingsTable td {
+    vertical-align: middle;
+    font-size: 16px;
 }
