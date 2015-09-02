@@ -7,6 +7,7 @@
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=medium-dpi" />
     <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-switch.min.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
 
     <title>WalkBlacksburg</title>
@@ -20,7 +21,7 @@
                     <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="main-menu">
-                    <li><a href="">Crime data</a></li>
+                    <!--<li><a href="">Crime data</a></li>-->
                     <li role="separator" class="divider"></li>
                     <li><a data-toggle="modal" data-target="#settingsModal">Settings</a></li>
                     <li role="separator" class="divider"></li>
@@ -49,14 +50,23 @@
         </button>
     </div>
 
-    <div class="modal fade menu-modal" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal menu-modal" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="settingsModalLabel">Settings</h4>
                 </div>
                 <div class="modal-body">
-                    We'll put some settings here
+                    <table class="table table-striped" id="settingsTable">
+                        <tr>
+                            <td>Time of day</td>
+                            <td class="text-right"><input class="styled-switch" type="checkbox" id="isNight-checkbox" data-on-text="Night" data-off-text="Day" data-off-color="warning" data-handle-width="40"/></td>
+                        </tr>
+                        <tr>
+                            <td>Alternate colors</td>
+                            <td class="text-right"><input class="styled-switch" type="checkbox" id="alternateColors-checkbox" data-on-text="|" data-off-text="|"  data-handle-width="40" /></td>
+                        </tr>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -64,7 +74,7 @@
             </div>
         </div>
     </div>
-    <div class="modal fade menu-modal" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal menu-modal" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -85,8 +95,51 @@
                 <div class="modal-header">
                     <h4 class="modal-title" id="reportModalLabel">Report a problem</h4>
                 </div>
+                <form class="form-horizontal">
                 <div class="modal-body">
-                    We'll put a form or something to report an issue here
+                    <p class="modal-paragraph">Thanks for helping us make a better app! Fill out the form below, or just shoot us an email: <em><a href="mailto:support@codefornrv.org?WalkBlacksburg issue">support@codefornrv.org</a></em></p>
+                    <p class="modal-paragraph">If you want to tell us about some bad data, e.g. the map says a road has sidewalks and it definitely does not!, try tapping on the road and clicking the report button there!</p>
+                    <div class="form-group">
+                        <label for="supportText" class="col-sm-2 control-label">Talk to us</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="6" id="supportText" placeholder="What can we make better?"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="queryModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="queryModalLabel">Information</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <td>Name?</td>
+                            <td id="roadName"></td>
+                        </tr>
+                        <tr>
+                            <td>Speedlimit?</td>
+                            <td id="speedlimit"></td>
+                        </tr>
+                        <tr>
+                            <td>Sidewalks?</td>
+                            <td id="sidewalks"></td>
+                        </tr>
+                        <tr>
+                            <td>Streetlights?</td>
+                            <td id="streetlights"></td>
+                        </tr>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -98,6 +151,7 @@
 
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-switch.min.js"></script>
     <script type="text/javascript" src="bower_components/remarkable-bootstrap-notify/bootstrap-notify.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/suncalc/suncalc.js"></script>
