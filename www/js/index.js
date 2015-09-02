@@ -128,6 +128,7 @@ function setupMap() {
             directionsService.route(transitDirectionsRequest, function(result, status) {
                 if (status == google.maps.DirectionsStatus.OK) {
                     directionsDisplay.setDirections(result);
+                    scoreWalkingDirections(result.routes[0].overview_path);
                 }
             });
         }
@@ -348,6 +349,44 @@ function setMapStyle(feature) {
     }
 }
 
+var scoreTypes = ['day', 'night'];
+var scoreDetails = {
+    '3' : {'panel': 'panel-success', 'info': 'Looks Pretty Safe'},
+    '2' : {'panel': 'panel-warning', 'info': 'Looks OK'},
+    '1' : {'panel': 'panel-danger', 'info': 'Looks Dangerous'}
+};
+
+function scoreWalkingDirections(path) {
+    $('#safety-score-modal').show();
+    $('#safety-score-loading').show();
+    $('#safety-score-result').hide();
+
+    coordinates = [];
+    for(var i=0; i<path.length; i++) {
+        coordinates.push({lat: path[i].G, lon: path[i].K})
+    }
+    $.post('https://polar-oasis-3769.herokuapp.com/score',
+        JSON.stringify(coordinates),
+        processWalkingDirectionsScore);
+}
+
+function processWalkingDirectionsScore(result) {
+    result = $.parseJSON(result);
+    console.log(result);
+    $.each(scoreTypes, function() {
+        var scoreType = this;
+        var score = '' + Math.round(result.scores[scoreType]);
+        var detail = scoreDetails[score];
+        var id = '#safety-score-result-' + scoreType;
+
+        $(id).removeClass().addClass('panel ' + detail.panel);
+        $(id + ' .safety-info').html(detail.info);
+    });
+    
+    $('#safety-score-modal').show();
+    $('#safety-score-loading').hide();
+    $('#safety-score-result').show();
+}
 
 function onBackKeyDown(e) {
     //if no mod
