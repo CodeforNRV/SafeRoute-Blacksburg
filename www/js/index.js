@@ -307,7 +307,7 @@ function onLocationSuccess(position) {
 
 function onLocationError(error) {
     console.log('onLocationError, code: ' + error.code + '\n message: ' + error.message + '\n');
-    currentLocation.setMap(null);
+    currentLocation && currentLocation.setMap(null);
     $.notify({
         // options
         message: 'Could not get your location'
@@ -382,7 +382,7 @@ function processWalkingDirectionsScore(result) {
         $(id).removeClass().addClass('panel ' + detail.panel);
         $(id + ' .safety-info').html(detail.info);
     });
-    
+
     $('#safety-score-modal').show();
     $('#safety-score-loading').hide();
     $('#safety-score-result').show();
