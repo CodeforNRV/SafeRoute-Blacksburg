@@ -363,6 +363,7 @@ function scoreWalkingDirections(path) {
 
     coordinates = [];
     for(var i=0; i<path.length; i++) {
+        if(i > 100) break;
         coordinates.push({lat: path[i].G, lon: path[i].K})
     }
     $.post('https://polar-oasis-3769.herokuapp.com/score',
