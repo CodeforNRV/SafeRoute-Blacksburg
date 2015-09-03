@@ -86,6 +86,10 @@ body {
     }
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 .dest-search {
     position: relative;
     width: 0%;
