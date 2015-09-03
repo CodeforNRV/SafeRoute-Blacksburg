@@ -18,6 +18,8 @@
  */
 
 var map;
+var directionsService;
+var directionsDisplay;
 var currentLocation = null;
 var roadsLayer = null;
 var accuracyCircle = null;
@@ -63,6 +65,16 @@ function setupMap() {
         streetViewControl: false
     };
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    directionsService = new google.maps.DirectionsService();
+    var directionsRendererOptions = {
+        polylineOptions: {
+            strokeColor: '#999',
+            strokeOpacity: 0.5,
+            strokeWeight: 15
+        }
+    };
+    directionsDisplay = new google.maps.DirectionsRenderer(directionsRendererOptions);
+    directionsDisplay.setMap(map);
     // NOTE: The url provided to the kml MUST be publicly accessible
     /*var safeStreetOverlay = new google.maps.KmlLayer({
         url: "http://dry-castle-3287.herokuapp.com/overlay.kml",
@@ -107,25 +119,18 @@ function setupMap() {
         var bounds = new google.maps.LatLngBounds();
         for (var i = 0, place; place = places[i]; i++) {
             console.log('Adding place: ' + place.name);
-            var image = {
-                url: 'http://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png', //place.icon,
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(17, 34),
-                scaledSize: new google.maps.Size(50, 50)
+
+            var transitDirectionsRequest = {
+                origin: currentLocation.position,
+                destination: place.geometry.location,
+                travelMode: google.maps.TravelMode.WALKING
             };
-
-            // Create a marker for each place.
-            var marker = new google.maps.Marker({
-                map: map,
-                //icon: image,
-                title: place.name,
-                position: place.geometry.location
+            directionsService.route(transitDirectionsRequest, function(result, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(result);
+                    scoreWalkingDirections(result.routes[0].overview_path);
+                }
             });
-
-            markers.push(marker);
-
-            bounds.extend(place.geometry.location);
         }
 
         map.fitBounds(bounds);
@@ -344,6 +349,44 @@ function setMapStyle(feature) {
     }
 }
 
+var scoreTypes = ['day', 'night'];
+var scoreDetails = {
+    '3' : {'panel': 'panel-success', 'info': 'Looks Pretty Safe'},
+    '2' : {'panel': 'panel-warning', 'info': 'Looks OK'},
+    '1' : {'panel': 'panel-danger', 'info': 'Looks Dangerous'}
+};
+
+function scoreWalkingDirections(path) {
+    $('#safety-score-modal').show();
+    $('#safety-score-loading').show();
+    $('#safety-score-result').hide();
+
+    coordinates = [];
+    for(var i=0; i<path.length; i++) {
+        coordinates.push({lat: path[i].G, lon: path[i].K})
+    }
+    $.post('https://polar-oasis-3769.herokuapp.com/score',
+        JSON.stringify(coordinates),
+        processWalkingDirectionsScore);
+}
+
+function processWalkingDirectionsScore(result) {
+    result = $.parseJSON(result);
+    console.log(result);
+    $.each(scoreTypes, function() {
+        var scoreType = this;
+        var score = '' + Math.round(result.scores[scoreType]);
+        var detail = scoreDetails[score];
+        var id = '#safety-score-result-' + scoreType;
+
+        $(id).removeClass().addClass('panel ' + detail.panel);
+        $(id + ' .safety-info').html(detail.info);
+    });
+    
+    $('#safety-score-modal').show();
+    $('#safety-score-loading').hide();
+    $('#safety-score-result').show();
+}
 
 function onBackKeyDown(e) {
     //if no mod
@@ -358,5 +401,3 @@ function onBackKeyDown(e) {
         navigator.app.exitApp();
     }
 }
-
-
