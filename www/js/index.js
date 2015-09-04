@@ -355,18 +355,24 @@ var scoreDetails = {
     '2' : {'panel': 'panel-warning', 'info': 'Looks OK'},
     '1' : {'panel': 'panel-danger', 'info': 'Looks Dangerous'}
 };
+var tooManyPointsForSafetyScore = false;
 
 function scoreWalkingDirections(path) {
     $('#safety-score-modal').show();
     $('#safety-score-loading').show();
     $('#safety-score-result').hide();
+    $('#too-many-points-for-safety-score').hide();
+
     $('#safety-score-modal-dismiss').click(function() {
         $('#safety-score-modal').hide();
     });
-    
+
     coordinates = [];
     for(var i=0; i<path.length; i++) {
-        if(i > 100) break;
+        if(i > 100) {
+            tooManyPointsForSafetyScore = true;
+            break;
+        }
         coordinates.push({lat: path[i].G, lon: path[i].K})
     }
     $.post('https://polar-oasis-3769.herokuapp.com/score',
@@ -387,9 +393,20 @@ function processWalkingDirectionsScore(result) {
         $(id + ' .safety-info').html(detail.info);
     });
 
-    $('#safety-score-modal').show();
-    $('#safety-score-loading').hide();
-    $('#safety-score-result').show();
+    if(tooManyPointsForSafetyScore) {
+        tooManyPointsForSafetyScore = false;
+        $('#safety-score-modal').show();
+        $('#safety-score-loading').hide();
+        $('#too-many-points-for-safety-score').show();
+        setTimeout(function () {
+            $('#too-many-points-for-safety-score').hide();
+            $('#safety-score-result').show();
+        }, 3000);
+    } else {
+        $('#safety-score-modal').show();
+        $('#safety-score-loading').hide();
+        $('#safety-score-result').show();
+    }
 }
 
 function onBackKeyDown(e) {
