@@ -51,6 +51,13 @@ body {
     width:100%;
 }
 
+.navbar-brand {
+    color: white !important;
+    font-size: 24px;
+    text-transform: none;
+    padding: 23px;
+}
+
 .glyphicon {
     font-size: 20px;
     color: #fff
@@ -175,7 +182,7 @@ input[type="search"].dest-search-input {
 }
 .dest-search.dest-search-open,
 .no-js .dest-search {
-    width: 80%;
+    width: 90%;
 }
 .dest-search.dest-search-open .dest-icon-search,
 .no-js .dest-search .dest-icon-search {
@@ -278,8 +285,13 @@ h1 {
     background-color: #660000;
     color: #fff;
 }
-#locate-btn:active {
-    background-color: #980000;
+#navigate-btn {
+    position: absolute;
+    bottom: 100px;
+    right: 18px;
+    z-index: 99;
+    background-color: #ff6600;
+    color: #fff;
 }
 
 #type-selector {
@@ -345,9 +357,10 @@ h1 {
 }
 
 [data-notify="container"] {
-    opacity: 0.9;
+    opacity: 1;
     width: 60%;
     text-align: center;
+    font-size: 14px;
 }
 .alert {
     padding: 5px;
@@ -370,4 +383,30 @@ h1 {
     left: initial;
     bottom: initial;
     width: 200px;
+}
+
+#safety-score-modal .modal-header {
+    padding: 10px;
+}
+
+#safety-score-modal-dismiss {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+    z-index:1;
+}
+
+#helpModal .panel {
+    text-transform: none;
+    font-size: 14px;
+}
+
+.modal .modal-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#reportModal button.pull-right {
+    margin-left: 100%;
+    margin-bottom: 10px;
 }

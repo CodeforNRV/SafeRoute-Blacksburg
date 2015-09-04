@@ -20,11 +20,13 @@
 var map;
 var directionsService;
 var directionsDisplay;
+var searchBox;
 var currentLocation = null;
 var roadsLayer = null;
 var accuracyCircle = null;
 var watchID = null;
 var markers = [];
+var problemGid = null;
 var settings = {
     isNight: isNight(),
     alternateColors: false
@@ -75,12 +77,7 @@ function setupMap() {
     };
     directionsDisplay = new google.maps.DirectionsRenderer(directionsRendererOptions);
     directionsDisplay.setMap(map);
-    // NOTE: The url provided to the kml MUST be publicly accessible
-    /*var safeStreetOverlay = new google.maps.KmlLayer({
-        url: "http://dry-castle-3287.herokuapp.com/overlay.kml",
-    });
-    safeStreetOverlay.setMap(map);*/
-    var path = window.location.href.replace('index.html', '')
+
     roadsLayer = new google.maps.Data();
     $.getJSON("roads.json", function(data) {
         roadsLayer.addGeoJson(data);
@@ -94,7 +91,12 @@ function setupMap() {
         $('#speedlimit').html(event.feature.getProperty('s'));
         $('#sidewalks').html(trueFalseConverter(event.feature.getProperty('sw')));
         $('#streetlights').html(trueFalseConverter(event.feature.getProperty('sl')));
+        problemGid = event.feature.getProperty('gid');
         $('#queryModal').modal('show');
+        if (directionsDisplay.getRouteIndex() >= 0) {
+            $('#safety-score-modal').hide();
+            $('#navigate-btn').fadeIn();
+        }
     });
     roadsLayer.setMap(map);
 
@@ -102,38 +104,11 @@ function setupMap() {
     var input = /** @type {HTMLInputElement} */(
         document.getElementById('search-terms'));
 
-    var searchBox = new google.maps.places.SearchBox(
+    searchBox = new google.maps.places.SearchBox(
         /** @type {HTMLInputElement} */(input));
 
     google.maps.event.addListener(searchBox, 'places_changed', function() {
-        var places = searchBox.getPlaces();
-        if (places.length == 0) {
-            return;
-        }
-        for (var i = 0, marker; marker = markers[i]; i++) {
-            marker.setMap(null);
-        }
-
-        // For each place, get the icon, place name, and location.
-        markers = [];
-        var bounds = new google.maps.LatLngBounds();
-        for (var i = 0, place; place = places[i]; i++) {
-            console.log('Adding place: ' + place.name);
-
-            var transitDirectionsRequest = {
-                origin: currentLocation.position,
-                destination: place.geometry.location,
-                travelMode: google.maps.TravelMode.WALKING
-            };
-            directionsService.route(transitDirectionsRequest, function(result, status) {
-                if (status == google.maps.DirectionsStatus.OK) {
-                    directionsDisplay.setDirections(result);
-                    scoreWalkingDirections(result.routes[0].overview_path);
-                }
-            });
-        }
-
-        map.fitBounds(bounds);
+        runSearch();
     });
 
     // Bias the SearchBox results towards places that are within the bounds of the
@@ -155,6 +130,11 @@ $('#locate-btn').on('click', function (e) {
     locateMe();
 });
 
+$('#navigate-btn').on('click', function(e) {
+    $(this).fadeOut();
+    $('#safety-score-modal').show();
+}).hide();
+
 $('#search-btn').on('click', function(e) {
     e.stopPropagation();
     if (!$('#dest-search').hasClass('dest-search-open')) {
@@ -169,6 +149,7 @@ $('#search-btn').on('click', function(e) {
             $('#search-terms').blur();
         } else {
             $('#search-form').submit();
+            runSearch();
         }
 
     }
@@ -183,6 +164,7 @@ $('#search-form').submit(function(e) {
 // ADD SLIDEDOWN ANIMATION TO DROPDOWN //
 $('.dropdown').on('show.bs.dropdown', function(e){
     $(this).find('.dropdown-menu').first().stop(true, true).slideDown();
+    $('#safety-score-modal').hide();
 });
 
 // ADD SLIDEUP ANIMATION TO DROPDOWN //
@@ -190,13 +172,24 @@ $('.dropdown').on('hide.bs.dropdown', function(e){
     $(this).find('.dropdown-menu').first().stop(true, true).slideUp();
 });
 
-$('#isNight-checkbox').bootstrapSwitch('state', settings.isNight, true);
-$('#isNight-checkbox').on('switchChange.bootstrapSwitch', function(event, state) {
-    settings.isNight = state;
-    roadsLayer.setStyle(function(feature) {
-        return setMapStyle(feature);
+$('#isNight-checkbox-settings').bootstrapSwitch('state', settings.isNight, true)
+    .on('switchChange.bootstrapSwitch', function(event, state) {
+        settings.isNight = state;
+        $('#isNight-checkbox-route').bootstrapSwitch('state', settings.isNight, true)
+        roadsLayer.setStyle(function(feature) {
+            return setMapStyle(feature);
+        });
+        updateRouteDivs();
     });
-});
+$('#isNight-checkbox-route').bootstrapSwitch('state', settings.isNight, true)
+    .on('switchChange.bootstrapSwitch', function(event, state) {
+        settings.isNight = state;
+        $('#isNight-checkbox-settings').bootstrapSwitch('state', settings.isNight, true);
+        roadsLayer.setStyle(function(feature) {
+            return setMapStyle(feature);
+        });
+        updateRouteDivs();
+    });
 
 $('#alternateColors-checkbox').on('switchChange.bootstrapSwitch', function(event, state) {
     settings.alternateColors = state;
@@ -207,6 +200,31 @@ $('#alternateColors-checkbox').on('switchChange.bootstrapSwitch', function(event
 
 $('.styled-switch').bootstrapSwitch();
 
+$('#reportProblemForm').on('submit', function(e) {
+    var form = $(this).serializeArray();
+    e.preventDefault();
+    var doc = {};
+    doc["message"] = form[0].value;
+    if (form[1].value != "") {
+        doc["roadGid"] = form[1].value;
+
+    }
+    postToDatabase(doc);
+});
+
+$('#queryReportButton').on('click', function(e) {
+    $('#gidHiddenField').val(problemGid);
+    $('#reportModal').modal('show');
+    $('#reportModal textarea').attr('placeholder', "What's wrong with this road segment?");
+});
+
+$('#reportModal').on('shown.bs.modal', function(e) {
+    $('#reportModal textarea').attr('placeholder', "What can we make better?");
+});
+
+$('.navbar-brand').fadeOut(3000, function(e) {
+    $('#dest-search').addClass('dest-search-open');
+});
 
 function mobilecheck() {
     var check = false;
@@ -246,6 +264,39 @@ function styleRoads() {
     }
 }
 
+function runSearch() {
+    $('#search-terms').blur();
+    var places = searchBox.getPlaces();
+    if (places.length == 0) {
+        return;
+    }
+    for (var i = 0, marker; marker = markers[i]; i++) {
+        marker.setMap(null);
+    }
+
+    // For each place, get the icon, place name, and location.
+    markers = [];
+    var bounds = new google.maps.LatLngBounds();
+    for (var i = 0, place; place = places[i]; i++) {
+        //Only do the first one for now
+        if (i > 0) { continue; }
+        console.log('Adding place: ' + place.name);
+
+        var transitDirectionsRequest = {
+            origin: currentLocation.position,
+            destination: place.geometry.location,
+            travelMode: google.maps.TravelMode.WALKING
+        };
+        directionsService.route(transitDirectionsRequest, function(result, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+                directionsDisplay.setDirections(result);
+                scoreWalkingDirections(result.routes[0].overview_path);
+            }
+        });
+    }
+    map.fitBounds(bounds);
+}
+
 function locateMe() {
     if (currentLocation === null) {
         watchID = navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, {timeout: 5000});
@@ -258,6 +309,9 @@ function locateMe() {
             placement: {
                 from: "bottom",
                 align: "center"
+            },
+            offset: {
+                y: 100
             },
             animate: {
                 enter: "animated fadeInUp",
@@ -307,7 +361,7 @@ function onLocationSuccess(position) {
 
 function onLocationError(error) {
     console.log('onLocationError, code: ' + error.code + '\n message: ' + error.message + '\n');
-    currentLocation.setMap(null);
+    currentLocation && currentLocation.setMap(null);
     $.notify({
         // options
         message: 'Could not get your location'
@@ -317,6 +371,9 @@ function onLocationError(error) {
         placement: {
             from: "bottom",
             align: "center"
+        },
+        offset: {
+            y: 100
         },
         animate: {
             enter: "animated fadeInUp",
@@ -355,14 +412,25 @@ var scoreDetails = {
     '2' : {'panel': 'panel-warning', 'info': 'Looks OK'},
     '1' : {'panel': 'panel-danger', 'info': 'Looks Dangerous'}
 };
+var tooManyPointsForSafetyScore = false;
 
 function scoreWalkingDirections(path) {
     $('#safety-score-modal').show();
     $('#safety-score-loading').show();
     $('#safety-score-result').hide();
+    $('#too-many-points-for-safety-score').hide();
+
+    $('#safety-score-modal-dismiss').click(function() {
+        $('#safety-score-modal').hide();
+        $('#navigate-btn').fadeIn();
+    });
 
     coordinates = [];
     for(var i=0; i<path.length; i++) {
+        if(i > 100) {
+            tooManyPointsForSafetyScore = true;
+            break;
+        }
         coordinates.push({lat: path[i].G, lon: path[i].K})
     }
     $.post('https://polar-oasis-3769.herokuapp.com/score',
@@ -382,10 +450,32 @@ function processWalkingDirectionsScore(result) {
         $(id).removeClass().addClass('panel ' + detail.panel);
         $(id + ' .safety-info').html(detail.info);
     });
-    
-    $('#safety-score-modal').show();
-    $('#safety-score-loading').hide();
-    $('#safety-score-result').show();
+
+    if(tooManyPointsForSafetyScore) {
+        tooManyPointsForSafetyScore = false;
+        $('#safety-score-modal').show();
+        $('#safety-score-loading').hide();
+        $('#too-many-points-for-safety-score').show();
+        setTimeout(function () {
+            $('#too-many-points-for-safety-score').hide();
+            $('#safety-score-result').show();
+        }, 3000);
+    } else {
+        updateRouteDivs();
+        $('#safety-score-modal').show();
+        $('#safety-score-loading').hide();
+        $('#safety-score-result').show();
+    }
+}
+
+function updateRouteDivs() {
+    if(settings.isNight) {
+        $('#safety-score-result-day-div').hide();
+        $('#safety-score-result-night-div').show();
+    } else {
+        $('#safety-score-result-day-div').show();
+        $('#safety-score-result-night-div').hide();
+    }
 }
 
 function onBackKeyDown(e) {
@@ -400,4 +490,66 @@ function onBackKeyDown(e) {
     } else {
         navigator.app.exitApp();
     }
+}
+
+function postToDatabase(doc) {
+    doc["timestamp"] = new Date();
+    doc = JSON.stringify(doc);
+    $.ajax({
+        "async": true,
+        "crossDomain": true,
+        "url": "https://codefornrv.cloudant.com/walkblacksburg/",
+        "method": "POST",
+        "headers": {
+            "authorization": "Basic " + btoa(config.couchdb.user + ":" + config.couchdb.password),
+            "content-type": "application/json"
+        },
+        "processData": false,
+        "data": doc
+    }).done(function (response) {
+        $('#reportModal').modal('hide');
+        $('#gidHiddenField').val("");
+        $('#supportText').val("");
+        $.notify({
+            message: 'Thanks for the feedback!'
+        }, {
+            type: 'info',
+            placement: {
+                from: "top",
+                align: "center"
+            },
+            offset: {
+                y: 100
+            },
+            animate: {
+                enter: "animated fadeIn",
+                exit: "animated fadeOut"
+            },
+            allow_dismiss: false,
+            delay: 3000
+        });
+    }).fail(function (response) {
+        $.notify({
+            // options
+            message: "Couldn't submit feedback at this time, please try again later!"
+        }, {
+            // settings
+            type: 'danger',
+            placement: {
+                from: "bottom",
+                align: "center"
+            },
+            z_index: 1100,
+            offset: {
+                y: 100
+            },
+            animate: {
+                enter: "animated fadeIn",
+                exit: "animated fadeOut"
+            },
+            allow_dismiss: false,
+            delay: 5000
+        });
+    });
+
 }
