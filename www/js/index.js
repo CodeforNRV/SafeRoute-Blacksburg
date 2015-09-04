@@ -422,6 +422,7 @@ function scoreWalkingDirections(path) {
 
     $('#safety-score-modal-dismiss').click(function() {
         $('#safety-score-modal').hide();
+        $('#navigate-btn').fadeIn();
     });
 
     coordinates = [];
