@@ -360,7 +360,10 @@ function scoreWalkingDirections(path) {
     $('#safety-score-modal').show();
     $('#safety-score-loading').show();
     $('#safety-score-result').hide();
-
+    $('#safety-score-modal-dismiss').click(function() {
+        $('#safety-score-modal').hide();
+    });
+    
     coordinates = [];
     for(var i=0; i<path.length; i++) {
         if(i > 100) break;

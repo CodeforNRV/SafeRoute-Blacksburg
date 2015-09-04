@@ -23,11 +23,11 @@
                 <ul class="dropdown-menu" aria-labelledby="main-menu">
                     <!--<li><a href="">Crime data</a></li>-->
                     <li role="separator" class="divider"></li>
-                    <li><a class="clickable" data-toggle="modal" data-target="#settingsModal">Settings</a></li>
+                    <li><a href="javascript:void(0);" data-toggle="modal" data-target="#settingsModal">Settings</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a class="clickable" data-toggle="modal" data-target="#helpModal">Help</a></li>
+                    <li><a href="javascript:void(0);" data-toggle="modal" data-target="#helpModal">Help</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a class="clickable"  data-toggle="modal" data-target="#reportModal">Report a problem</a></li>
+                    <li><a href="javascript:void(0);" data-toggle="modal" data-target="#reportModal">Report a problem</a></li>
                 </ul>
             </div>
 
@@ -150,9 +150,15 @@
 
     <div class="modal" id="safety-score-modal">
         <div class="modal-content">
+            <div class="modal-header">
+                <button id="safety-score-modal-dismiss" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                Is it safe to walk?
+            </div>
             <div class="modal-body">
                 <div id="safety-score-loading">
-                    <span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Calculating Safety...
+                    <span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Checking speed limits, sidewalks, and street lights...
                 </div>
 
                 <div id="safety-score-result">

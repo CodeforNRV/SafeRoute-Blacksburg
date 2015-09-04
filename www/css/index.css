@@ -86,10 +86,6 @@ body {
     }
 }
 
-.clickable {
-    cursor: pointer;
-}
-
 .dest-search {
     position: relative;
     width: 0%;
@@ -374,4 +370,15 @@ h1 {
     left: initial;
     bottom: initial;
     width: 200px;
+}
+
+#safety-score-modal .modal-header {
+    padding: 10px;
+}
+
+#safety-score-modal-dismiss {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+    z-index:1;
 }
