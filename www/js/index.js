@@ -77,12 +77,7 @@ function setupMap() {
     };
     directionsDisplay = new google.maps.DirectionsRenderer(directionsRendererOptions);
     directionsDisplay.setMap(map);
-    // NOTE: The url provided to the kml MUST be publicly accessible
-    /*var safeStreetOverlay = new google.maps.KmlLayer({
-        url: "http://dry-castle-3287.herokuapp.com/overlay.kml",
-    });
-    safeStreetOverlay.setMap(map);*/
-    var path = window.location.href.replace('index.html', '')
+
     roadsLayer = new google.maps.Data();
     $.getJSON("roads.json", function(data) {
         roadsLayer.addGeoJson(data);
@@ -98,8 +93,10 @@ function setupMap() {
         $('#streetlights').html(trueFalseConverter(event.feature.getProperty('sl')));
         problemGid = event.feature.getProperty('gid');
         $('#queryModal').modal('show');
-        $('#safety-score-modal').hide();
-        $('#navigate-btn').fadeIn();
+        if (directionsDisplay.getRouteIndex() >= 0) {
+            $('#safety-score-modal').hide();
+            $('#navigate-btn').fadeIn();
+        }
     });
     roadsLayer.setMap(map);
 
