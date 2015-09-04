@@ -20,6 +20,7 @@
 var map;
 var directionsService;
 var directionsDisplay;
+var searchBox;
 var currentLocation = null;
 var roadsLayer = null;
 var accuracyCircle = null;
@@ -97,6 +98,8 @@ function setupMap() {
         $('#streetlights').html(trueFalseConverter(event.feature.getProperty('sl')));
         problemGid = event.feature.getProperty('gid');
         $('#queryModal').modal('show');
+        $('#safety-score-modal').hide();
+        $('#navigate-btn').fadeIn();
     });
     roadsLayer.setMap(map);
 
@@ -104,38 +107,11 @@ function setupMap() {
     var input = /** @type {HTMLInputElement} */(
         document.getElementById('search-terms'));
 
-    var searchBox = new google.maps.places.SearchBox(
+    searchBox = new google.maps.places.SearchBox(
         /** @type {HTMLInputElement} */(input));
 
     google.maps.event.addListener(searchBox, 'places_changed', function() {
-        var places = searchBox.getPlaces();
-        if (places.length == 0) {
-            return;
-        }
-        for (var i = 0, marker; marker = markers[i]; i++) {
-            marker.setMap(null);
-        }
-
-        // For each place, get the icon, place name, and location.
-        markers = [];
-        var bounds = new google.maps.LatLngBounds();
-        for (var i = 0, place; place = places[i]; i++) {
-            console.log('Adding place: ' + place.name);
-
-            var transitDirectionsRequest = {
-                origin: currentLocation.position,
-                destination: place.geometry.location,
-                travelMode: google.maps.TravelMode.WALKING
-            };
-            directionsService.route(transitDirectionsRequest, function(result, status) {
-                if (status == google.maps.DirectionsStatus.OK) {
-                    directionsDisplay.setDirections(result);
-                    scoreWalkingDirections(result.routes[0].overview_path);
-                }
-            });
-        }
-
-        map.fitBounds(bounds);
+        runSearch();
     });
 
     // Bias the SearchBox results towards places that are within the bounds of the
@@ -157,6 +133,11 @@ $('#locate-btn').on('click', function (e) {
     locateMe();
 });
 
+$('#navigate-btn').on('click', function(e) {
+    $(this).fadeOut();
+    $('#safety-score-modal').show();
+}).hide();
+
 $('#search-btn').on('click', function(e) {
     e.stopPropagation();
     if (!$('#dest-search').hasClass('dest-search-open')) {
@@ -171,6 +152,7 @@ $('#search-btn').on('click', function(e) {
             $('#search-terms').blur();
         } else {
             $('#search-form').submit();
+            runSearch();
         }
 
     }
@@ -185,6 +167,7 @@ $('#search-form').submit(function(e) {
 // ADD SLIDEDOWN ANIMATION TO DROPDOWN //
 $('.dropdown').on('show.bs.dropdown', function(e){
     $(this).find('.dropdown-menu').first().stop(true, true).slideDown();
+    $('#safety-score-modal').hide();
 });
 
 // ADD SLIDEUP ANIMATION TO DROPDOWN //
@@ -192,13 +175,24 @@ $('.dropdown').on('hide.bs.dropdown', function(e){
     $(this).find('.dropdown-menu').first().stop(true, true).slideUp();
 });
 
-$('#isNight-checkbox').bootstrapSwitch('state', settings.isNight, true);
-$('#isNight-checkbox').on('switchChange.bootstrapSwitch', function(event, state) {
-    settings.isNight = state;
-    roadsLayer.setStyle(function(feature) {
-        return setMapStyle(feature);
+$('#isNight-checkbox-settings').bootstrapSwitch('state', settings.isNight, true)
+    .on('switchChange.bootstrapSwitch', function(event, state) {
+        settings.isNight = state;
+        $('#isNight-checkbox-route').bootstrapSwitch('state', settings.isNight, true)
+        roadsLayer.setStyle(function(feature) {
+            return setMapStyle(feature);
+        });
+        updateRouteDivs();
     });
-});
+$('#isNight-checkbox-route').bootstrapSwitch('state', settings.isNight, true)
+    .on('switchChange.bootstrapSwitch', function(event, state) {
+        settings.isNight = state;
+        $('#isNight-checkbox-settings').bootstrapSwitch('state', settings.isNight, true);
+        roadsLayer.setStyle(function(feature) {
+            return setMapStyle(feature);
+        });
+        updateRouteDivs();
+    });
 
 $('#alternateColors-checkbox').on('switchChange.bootstrapSwitch', function(event, state) {
     settings.alternateColors = state;
@@ -271,6 +265,39 @@ function styleRoads() {
     if (map.getZoom() >= 16) {
         zoomScale = 2;
     }
+}
+
+function runSearch() {
+    $('#search-terms').blur();
+    var places = searchBox.getPlaces();
+    if (places.length == 0) {
+        return;
+    }
+    for (var i = 0, marker; marker = markers[i]; i++) {
+        marker.setMap(null);
+    }
+
+    // For each place, get the icon, place name, and location.
+    markers = [];
+    var bounds = new google.maps.LatLngBounds();
+    for (var i = 0, place; place = places[i]; i++) {
+        //Only do the first one for now
+        if (i > 0) { continue; }
+        console.log('Adding place: ' + place.name);
+
+        var transitDirectionsRequest = {
+            origin: currentLocation.position,
+            destination: place.geometry.location,
+            travelMode: google.maps.TravelMode.WALKING
+        };
+        directionsService.route(transitDirectionsRequest, function(result, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+                directionsDisplay.setDirections(result);
+                scoreWalkingDirections(result.routes[0].overview_path);
+            }
+        });
+    }
+    map.fitBounds(bounds);
 }
 
 function locateMe() {
@@ -436,9 +463,20 @@ function processWalkingDirectionsScore(result) {
             $('#safety-score-result').show();
         }, 3000);
     } else {
+        updateRouteDivs();
         $('#safety-score-modal').show();
         $('#safety-score-loading').hide();
         $('#safety-score-result').show();
+    }
+}
+
+function updateRouteDivs() {
+    if(settings.isNight) {
+        $('#safety-score-result-day-div').hide();
+        $('#safety-score-result-night-div').show();
+    } else {
+        $('#safety-score-result-day-div').show();
+        $('#safety-score-result-night-div').hide();
     }
 }
 
