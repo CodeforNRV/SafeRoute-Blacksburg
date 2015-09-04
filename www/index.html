@@ -37,7 +37,7 @@
             <span class="navbar-brand">WalkBlacksburg</span>
             <div id="dest-search" class="navbar-header pull-right dest-search">
                 <form id="search-form">
-                    <input id="search-terms" class="dest-search-input" type="text" name="search-terms" value="" placeholder="Destination...?" />
+                    <input id="search-terms" class="dest-search-input" type="text" name="search-terms" value="" placeholder="Where to?" />
                     <input class="dest-search-submit" type="submit" value="">
                     <span id="search-btn" class="glyphicon glyphicon-search dest-icon-search" aria-hidden="true"></span>
                 </form>
@@ -48,6 +48,9 @@
 
     <div class="container-fluid fill">
         <div id="map-canvas"></div>
+        <button type="button" id="navigate-btn" class="btn btn-circle" aria-label="Show walking route">
+            <span class="glyphicon glyphicon-road" aria-hidden="true"></span>
+        </button>
         <button type="button" id="locate-btn" class="btn btn-circle" aria-label="GPS Location">
             <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
         </button>
@@ -63,7 +66,7 @@
                     <table class="table table-striped" id="settingsTable">
                         <tr>
                             <td>Time of day</td>
-                            <td class="text-right"><input class="styled-switch" type="checkbox" id="isNight-checkbox" data-on-text="Night" data-off-text="Day" data-off-color="warning" data-handle-width="40"/></td>
+                            <td class="text-right"><input id="isNight-checkbox-settings" class="styled-switch isNight-checkbox" type="checkbox" data-on-text="Night" data-off-text="Day" data-off-color="warning" data-handle-width="40"/></td>
                         </tr>
                         <tr>
                             <td>Alternate colors</td>
@@ -171,20 +174,24 @@
                 </div>
 
                 <div id="safety-score-result">
-                    <div>During the day</div>
-                    <div id="safety-score-result-day" class="panel">
-                        <div class="panel-heading">
-                            <span class="safety-info"></span>
+                    <div id="safety-score-result-day-div">
+                        <div>During the day</div>
+                        <div id="safety-score-result-day" class="panel">
+                            <div class="panel-heading">
+                                <span class="safety-info"></span>
+                            </div>
                         </div>
                     </div>
-
-                    <div>At night</div>
-                    <div id="safety-score-result-night" class="panel">
-                        <div class="panel-heading">
-                            <span class="safety-info"></span>
+                    <div id="safety-score-result-night-div">
+                        <div>At night</div>
+                        <div id="safety-score-result-night" class="panel">
+                            <div class="panel-heading">
+                                <span class="safety-info"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <input id="isNight-checkbox-route" class="styled-switch pull-right isNight-checkbox" type="checkbox" data-on-text="Night" data-off-text="Day" data-off-color="warning" data-size="mini"/>
             </div>
         </div>
     </div>

@@ -285,8 +285,13 @@ h1 {
     background-color: #660000;
     color: #fff;
 }
-#locate-btn:active {
-    background-color: #980000;
+#navigate-btn {
+    position: absolute;
+    bottom: 100px;
+    right: 18px;
+    z-index: 99;
+    background-color: #ff6600;
+    color: #fff;
 }
 
 #type-selector {
