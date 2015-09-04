@@ -8,6 +8,7 @@
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=medium-dpi" />
     <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="css/bootstrap-switch.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/animate.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
 
     <title>WalkBlacksburg</title>
@@ -15,30 +16,33 @@
 </head>
 <body>
     <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="navbar-header pull-left">
-            <div class="dropdown">
-                <button class="btn dropdown-toggle" type="button" id="main-menu" data-toggle="dropdown" aria aria-haspopup="true" aria-expanded="true">
-                    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="main-menu">
-                    <!--<li><a href="">Crime data</a></li>-->
-                    <li role="separator" class="divider"></li>
-                    <li><a data-toggle="modal" data-target="#settingsModal">Settings</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a data-toggle="modal" data-target="#helpModal">Help</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a  data-toggle="modal" data-target="#reportModal">Report a problem</a></li>
-                </ul>
+        <div class="container">
+            <div class="navbar-header pull-left">
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" id="main-menu" data-toggle="dropdown" aria aria-haspopup="true" aria-expanded="true">
+                        <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="main-menu">
+                        <li><a id="wbMenuLabel" style="text-transform:none;"><b>WalkBlacksburg</b></a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a data-toggle="modal" data-target="#settingsModal">Settings</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a data-toggle="modal" data-target="#helpModal">Help</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a  data-toggle="modal" data-target="#reportModal">Report a problem</a></li>
+                    </ul>
+                </div>
+
             </div>
+            <span class="navbar-brand">WalkBlacksburg</span>
+            <div id="dest-search" class="navbar-header pull-right dest-search">
+                <form id="search-form">
+                    <input id="search-terms" class="dest-search-input" type="text" name="search-terms" value="" placeholder="Where to?" />
+                    <input class="dest-search-submit" type="submit" value="">
+                    <span id="search-btn" class="glyphicon glyphicon-search dest-icon-search" aria-hidden="true"></span>
 
-        </div>
-        <div id="dest-search" class="navbar-header pull-right dest-search">
-            <form id="search-form">
-                <input id="search-terms" class="dest-search-input" type="text" name="search-terms" value="" placeholder="Destination...?" />
-                <input class="dest-search-submit" type="submit" value="">
-                <span id="search-btn" class="glyphicon glyphicon-search dest-icon-search" aria-hidden="true"></span>
-
-            </form>
+                </form>
+            </div>
         </div>
     </nav>
 
@@ -95,16 +99,17 @@
                 <div class="modal-header">
                     <h4 class="modal-title" id="reportModalLabel">Report a problem</h4>
                 </div>
-                <form class="form-horizontal">
+                <form id="reportProblemForm" class="form-horizontal">
                 <div class="modal-body">
-                    <p class="modal-paragraph">Thanks for helping us make a better app! Fill out the form below, or just shoot us an email: <em><a href="mailto:support@codefornrv.org?WalkBlacksburg issue">support@codefornrv.org</a></em></p>
-                    <p class="modal-paragraph">If you want to tell us about some bad data, e.g. the map says a road has sidewalks and it definitely does not!, try tapping on the road and clicking the report button there!</p>
                     <div class="form-group">
                         <label for="supportText" class="col-sm-2 control-label">Talk to us</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" rows="6" id="supportText" placeholder="What can we make better?"></textarea>
+                            <textarea class="form-control" rows="6" id="supportText" name="supportText" placeholder="What can we make better?"></textarea>
                         </div>
                     </div>
+                    <input type="hidden" id="gidHiddenField" name="roadGid" value="">
+                    <p class="modal-paragraph">Thanks for helping us make a better app! Fill out the form above, tweet @codefornrv, or just shoot us an email: <em><a href="mailto:support@codefornrv.org?WalkBlacksburg issue">support@codefornrv.org</a></em></p>
+                    <p class="modal-paragraph">If you want to tell us about some bad data, e.g. the map says a road has sidewalks and it definitely does not!, try tapping on the road and clicking the report button there!</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -124,11 +129,11 @@
                 <div class="modal-body">
                     <table class="table table-striped">
                         <tr>
-                            <td>Name?</td>
+                            <td>Name</td>
                             <td id="roadName"></td>
                         </tr>
                         <tr>
-                            <td>Speedlimit?</td>
+                            <td>Speedlimit</td>
                             <td id="speedlimit"></td>
                         </tr>
                         <tr>
@@ -142,6 +147,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" id="queryReportButton" data-dismiss="modal">Report Problem</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -155,6 +161,8 @@
     <script type="text/javascript" src="bower_components/remarkable-bootstrap-notify/bootstrap-notify.min.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/suncalc/suncalc.js"></script>
+    <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="js/jquery.couch.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
 
     <script type="text/javascript">

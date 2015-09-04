@@ -23,6 +23,7 @@ var roadsLayer = null;
 var accuracyCircle = null;
 var watchID = null;
 var markers = [];
+var problemGid = null;
 var settings = {
     isNight: isNight(),
     alternateColors: false
@@ -82,6 +83,7 @@ function setupMap() {
         $('#speedlimit').html(event.feature.getProperty('s'));
         $('#sidewalks').html(trueFalseConverter(event.feature.getProperty('sw')));
         $('#streetlights').html(trueFalseConverter(event.feature.getProperty('sl')));
+        problemGid = event.feature.getProperty('gid');
         $('#queryModal').modal('show');
     });
     roadsLayer.setMap(map);
@@ -202,6 +204,31 @@ $('#alternateColors-checkbox').on('switchChange.bootstrapSwitch', function(event
 
 $('.styled-switch').bootstrapSwitch();
 
+$('#reportProblemForm').on('submit', function(e) {
+    var form = $(this).serializeArray();
+    e.preventDefault();
+    var doc = {};
+    doc["message"] = form[0].value;
+    if (form[1].value != "") {
+        doc["roadGid"] = form[1].value;
+
+    }
+    postToDatabase(doc);
+});
+
+$('#queryReportButton').on('click', function(e) {
+    $('#gidHiddenField').val(problemGid);
+    $('#reportModal').modal('show');
+    $('#reportModal textarea').attr('placeholder', "What's wrong with this road segment?");
+});
+
+$('#reportModal').on('shown.bs.modal', function(e) {
+    $('#reportModal textarea').attr('placeholder', "What can we make better?");
+});
+
+$('.navbar-brand').fadeOut(3000, function(e) {
+    $('#dest-search').addClass('dest-search-open');
+});
 
 function mobilecheck() {
     var check = false;
@@ -253,6 +280,9 @@ function locateMe() {
             placement: {
                 from: "bottom",
                 align: "center"
+            },
+            offset: {
+                y: 100
             },
             animate: {
                 enter: "animated fadeInUp",
@@ -313,6 +343,9 @@ function onLocationError(error) {
             from: "bottom",
             align: "center"
         },
+        offset: {
+            y: 100
+        },
         animate: {
             enter: "animated fadeInUp",
             exit: "animated fadeOutDown"
@@ -357,6 +390,68 @@ function onBackKeyDown(e) {
     } else {
         navigator.app.exitApp();
     }
+}
+
+function postToDatabase(doc) {
+    doc["timestamp"] = new Date();
+    doc = JSON.stringify(doc);
+    $.ajax({
+        "async": true,
+        "crossDomain": true,
+        "url": "https://codefornrv.cloudant.com/walkblacksburg/",
+        "method": "POST",
+        "headers": {
+            "authorization": "Basic " + btoa(config.couchdb.user + ":" + config.couchdb.password),
+            "content-type": "application/json"
+        },
+        "processData": false,
+        "data": doc
+    }).done(function (response) {
+        $('#reportModal').modal('hide');
+        $('#gidHiddenField').val("");
+        $('#supportText').val("");
+        $.notify({
+            message: 'Thanks for the feedback!'
+        }, {
+            type: 'info',
+            placement: {
+                from: "top",
+                align: "center"
+            },
+            offset: {
+                y: 100
+            },
+            animate: {
+                enter: "animated fadeIn",
+                exit: "animated fadeOut"
+            },
+            allow_dismiss: false,
+            delay: 3000
+        });
+    }).fail(function (response) {
+        $.notify({
+            // options
+            message: "Couldn't submit feedback at this time, please try again later!"
+        }, {
+            // settings
+            type: 'danger',
+            placement: {
+                from: "bottom",
+                align: "center"
+            },
+            z_index: 1100,
+            offset: {
+                y: 100
+            },
+            animate: {
+                enter: "animated fadeIn",
+                exit: "animated fadeOut"
+            },
+            allow_dismiss: false,
+            delay: 5000
+        });
+    });
+
 }
 
 
