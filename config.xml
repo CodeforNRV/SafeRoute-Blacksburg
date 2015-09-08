@@ -9,6 +9,7 @@
     </author>
     <content src="index.html" />
     <preference name="phonegap-version" value="cli-5.1.1" />
+    <preference name="permissions" value="none" />
     <preference name="orientation" value="default" />
     <preference name="target-device" value="universal" />
     <preference name="webviewbounce" value="true" />
@@ -22,10 +23,10 @@
     <preference name="android-targetSdkVersion" value="19" />
     <gap:plugin name="org.apache.cordova.geolocation" />
     <icon src="www/res/icon.png" />
+    <plugin name="cordova-plugin-whitelist" version="1.1.0" />
     <access origin="https://*.googleapis.com/" />
     <access origin="https://*.gstatic.com/" />
     <access origin="https://codefornrv.cloudant.com"/>
-    <plugin name="cordova-plugin-whitelist" version="1" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
