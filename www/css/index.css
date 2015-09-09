@@ -410,3 +410,7 @@ h1 {
     margin-left: 100%;
     margin-bottom: 10px;
 }
+
+.glyphicon-road {
+    display: none;
+}
