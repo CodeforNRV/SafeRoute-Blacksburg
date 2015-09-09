@@ -21,12 +21,14 @@
     <preference name="disable-cursor" value="false" />
     <preference name="android-minSdkVersion" value="14" />
     <preference name="android-targetSdkVersion" value="19" />
-    <gap:plugin name="org.apache.cordova.geolocation" />
     <icon src="www/res/icon.png" />
-    <plugin name="cordova-plugin-whitelist" version="1.1.0" />
+    <gap:plugin name="org.apache.cordova.geolocation" />
+    <plugin name="cordova-plugin-whitelist" spec="^1.0.0" />
+    <access origin="*" />
     <access origin="https://*.googleapis.com/" />
     <access origin="https://*.gstatic.com/" />
-    <access origin="https://codefornrv.cloudant.com"/>
+    <access origin="https://codefornrv.cloudant.com" />
+    <allow-navigation href="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
