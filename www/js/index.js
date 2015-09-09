@@ -79,9 +79,10 @@ function setupMap() {
     directionsDisplay.setMap(map);
 
     roadsLayer = new google.maps.Data();
-    $.getJSON("roads.json", function(data) {
+    /*$.getJSON("roads.js", function(data) {
         roadsLayer.addGeoJson(data);
-    });
+    });*/
+    roadsLayer.addGeoJson(roadData);
 
     roadsLayer.setStyle(function(feature) {
         return setMapStyle(feature);
