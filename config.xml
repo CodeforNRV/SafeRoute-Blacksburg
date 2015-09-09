@@ -23,8 +23,7 @@
     <preference name="android-targetSdkVersion" value="19" />
     <icon src="www/res/icon.png" />
     <gap:plugin name="org.apache.cordova.geolocation" />
-    <plugin name="cordova-plugin-whitelist" spec="^1.0.0" />
-    <access origin="*" />
+    <plugin name="cordova-plugin-whitelist" spec="^1.1.0" />
     <access origin="https://*.googleapis.com/" />
     <access origin="https://*.gstatic.com/" />
     <access origin="https://codefornrv.cloudant.com" />
