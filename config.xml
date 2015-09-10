@@ -24,7 +24,16 @@
     <icon src="www/res/icon.png" />
     <gap:plugin name="org.apache.cordova.geolocation" />
     <plugin name="cordova-plugin-whitelist" spec="^1.1.0" />
-    
+    <access origin="https://*.googleapis.com/" />
+    <access origin="https://*.gstatic.com/" />
+    <access origin="https://codefornrv.cloudant.com" />
+    <allow-navigation href="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
     <platform name="android">
         <allow-intent href="market:*" />
     </platform>
