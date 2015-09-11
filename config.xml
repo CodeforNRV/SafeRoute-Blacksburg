@@ -27,6 +27,7 @@
     <access origin="https://*.googleapis.com/" />
     <access origin="https://*.gstatic.com/" />
     <access origin="https://codefornrv.cloudant.com" />
+    <access origin="https://*.herokuapp.com" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />

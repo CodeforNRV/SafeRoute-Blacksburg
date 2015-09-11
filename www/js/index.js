@@ -434,13 +434,13 @@ function scoreWalkingDirections(path) {
         }
         coordinates.push({lat: path[i].G, lon: path[i].K})
     }
-    $.post('https://polar-oasis-3769.herokuapp.com/score',
+    $.post('https://quiet-crag-2831.herokuapp.com/score',
         JSON.stringify(coordinates),
         processWalkingDirectionsScore);
 }
 
 function processWalkingDirectionsScore(result) {
-    result = $.parseJSON(result);
+    //result = $.parseJSON(result);
     console.log(result);
     $.each(scoreTypes, function() {
         var scoreType = this;
