@@ -413,13 +413,12 @@ var scoreDetails = {
     '2' : {'panel': 'panel-warning', 'info': 'Looks OK'},
     '1' : {'panel': 'panel-danger', 'info': 'Looks Dangerous'}
 };
-var tooManyPointsForSafetyScore = false;
 
 function scoreWalkingDirections(path) {
     $('#safety-score-modal').show();
     $('#safety-score-loading').show();
     $('#safety-score-result').hide();
-    $('#too-many-points-for-safety-score').hide();
+    $('#database-error').hide();
 
     $('#safety-score-modal-dismiss').click(function() {
         $('#safety-score-modal').hide();
@@ -428,10 +427,6 @@ function scoreWalkingDirections(path) {
 
     coordinates = [];
     for(var i=0; i<path.length; i++) {
-        if(i > 100) {
-            tooManyPointsForSafetyScore = true;
-            break;
-        }
         coordinates.push({lat: path[i].G, lon: path[i].K})
     }
     $.post('https://quiet-crag-2831.herokuapp.com/score',
@@ -440,11 +435,13 @@ function scoreWalkingDirections(path) {
 }
 
 function processWalkingDirectionsScore(result) {
-    //result = $.parseJSON(result);
     console.log(result);
     $.each(scoreTypes, function() {
         var scoreType = this;
-        var score = '' + Math.round(result.scores[scoreType]);
+        var score = result.scores[scoreType];
+        if (score >= 2.75) { score = '3'; }
+        else if (score >= 2.25) { score = '2'; }
+        else { score = '1'; }
         var detail = scoreDetails[score];
         var id = '#safety-score-result-' + scoreType;
 
@@ -452,16 +449,12 @@ function processWalkingDirectionsScore(result) {
         $(id + ' .safety-info').html(detail.info);
     });
 
-    if(tooManyPointsForSafetyScore) {
-        tooManyPointsForSafetyScore = false;
+    if(result.error) {
         $('#safety-score-modal').show();
         $('#safety-score-loading').hide();
-        $('#too-many-points-for-safety-score').show();
-        setTimeout(function () {
-            $('#too-many-points-for-safety-score').hide();
-            $('#safety-score-result').show();
-        }, 3000);
+        $('#database-error').show();
     } else {
+        $('#database-error').hide();
         updateRouteDivs();
         $('#safety-score-modal').show();
         $('#safety-score-loading').hide();
