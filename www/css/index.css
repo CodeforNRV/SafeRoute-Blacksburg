@@ -411,6 +411,6 @@ h1 {
     margin-bottom: 10px;
 }
 
-.glyphicon-road {
+#navigate-btn {
     display: none;
 }

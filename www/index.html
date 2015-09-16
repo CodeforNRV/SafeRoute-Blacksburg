@@ -6,8 +6,8 @@
          style-src 'self' https://*.googleapis.com 'unsafe-inline;
          font-src 'self' https://*.gstatic.com;
          media-src 'self';
-         img-src 'self' https://*.gstatic.com https://*.googleapis.com data:;
-         script-src 'self' https://*.googleapis.com 'unsafe-inline' 'unsafe-eval';
+         img-src 'self' https://*.gstatic.com https://*.googleapis.com http://*.google-analytics.com data:;
+         script-src 'self' https://*.googleapis.com http://*.google-analytics.com 'unsafe-inline' 'unsafe-eval';
          connect-src 'self' https://codefornrv.cloudant.com https://*.herokuapp.com"
     >
     <meta charset="utf-8" />
@@ -22,27 +22,18 @@
 
     <title>WalkBlacksburg</title>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHGXXbCN6EbaMwJS3A5wf0gniggDpSEn4&libraries=places"></script>
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-67520440-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
 </head>
 <body>
-    <!--<aside class="loading-screen" style="position:fixed; top:0; right:0; bottom:0; left:0; z-index:9999">
-        <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4" style="position:absolute; top:50%; margin-top:-7em">
-            <div class="page-header">
-                <i class="text-primary fa fa-spin fa-fw pull-left fa-5x fa-circle-o-notch" style="text-shadow: 0px 0px 0.2ex;"></i>
-                <hgroup class="" style="text-shadow: 0px 0px 0.1ex;">
-                    <h1 class="">
-                        Bootstrap<br>
-                        <small>Loading Screen</small>
-                    </h1>
-
-
-
-                </hgroup>
-            </div>
-            <p class="loading-status text-info" style="text-align:center">
-                Elegant loading screen exploiting Bootstrap standard components
-            </p>
-        </div>
-    </aside>-->
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header pull-left">
@@ -99,6 +90,10 @@
                         <tr>
                             <td>Alternate colors</td>
                             <td class="text-right"><input class="styled-switch" type="checkbox" id="alternateColors-checkbox" data-on-text="|" data-off-text="|"  data-handle-width="40" /></td>
+                        </tr>
+                        <tr>
+                            <td>Crime layer<br />(past 2 months)</td>
+                            <td class="text-right"><input class="styled-switch" type="checkbox" id="crimeLayer-checkbox" data-handle-width="40" /></td>
                         </tr>
                     </table>
                 </div>
@@ -200,6 +195,38 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default pull-left" id="queryReportButton" data-dismiss="modal">Report Problem</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="crimeQueryModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="crimeQueryModalLabel">Information</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <tr>
+                            <td>Crime Category</td>
+                            <td id="crimeCategory"></td>
+                        </tr>
+                        <tr>
+                            <td>Date Reported</td>
+                            <td id="crimeDateReported"></td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td id="crimeDescription"></td>
+                        </tr>
+                        <tr>
+                            <td>Location</td>
+                            <td id="crimeLocation"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>

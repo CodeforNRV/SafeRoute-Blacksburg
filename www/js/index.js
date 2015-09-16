@@ -23,6 +23,7 @@ var directionsDisplay;
 var searchBox;
 var currentLocation = null;
 var roadsLayer = null;
+var crimeLayer = null;
 var accuracyCircle = null;
 var watchID = null;
 var markers = [];
@@ -79,11 +80,7 @@ function setupMap() {
     directionsDisplay.setMap(map);
 
     roadsLayer = new google.maps.Data();
-    /*$.getJSON("roads.js", function(data) {
-        roadsLayer.addGeoJson(data);
-    });*/
     roadsLayer.addGeoJson(roadData);
-
     roadsLayer.setStyle(function(feature) {
         return setMapStyle(feature);
     });
@@ -197,6 +194,94 @@ $('#alternateColors-checkbox').on('switchChange.bootstrapSwitch', function(event
     roadsLayer.setStyle(function(feature) {
         return setMapStyle(feature);
     });
+});
+
+$('#crimeLayer-checkbox').on('switchChange.bootstrapSwitch', function(event, state) {
+    var cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth()-2); //2 months
+    var year = cutoffDate.getFullYear();
+    var month = cutoffDate.getMonth() + 1;
+    var day = cutoffDate.getDate();
+    if(state == true) {
+        if(crimeLayer === null) {
+            crimeLayer = new google.maps.Data();
+            crimeLayer.loadGeoJson('https://quiet-crag-2831.herokuapp.com/crime?startdate='+year+'-'+month+'-'+day);
+            crimeLayer.setStyle(function(feature) {
+                var crimeIcon = null;
+                var crimeCategory = feature.getProperty('crimecode');
+                switch (crimeCategory) {
+                    case "Assault":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Burglary":
+                        crimeIcon = 'img/medium.png';
+                        break;
+                    case "Disturbing the Peace":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "Drugs/Alcohol Violations":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "DUI":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "Fraud":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "Motor Vehicle Theft":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Robbery":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Sex Crimes":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Theft/Larceny":
+                        crimeIcon = 'img/medium.png';
+                        break;
+                    case "Weapons":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Vehicle Break-in/Theft":
+                        crimeIcon = 'img/medium.png';
+                        break;
+                    case "Arson":
+                        crimeIcon = 'img/medium.png';
+                        break;
+                    case "Vandalism":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "Homicide":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    default:
+                        crimeIcon = 'img/high.png';
+                        break;
+                }
+                return {
+                    icon: crimeIcon
+                }
+
+            });
+            crimeLayer.addListener('click', function(event) {
+                $('#crimeCategory').html(event.feature.getProperty('crimecode'));
+                $('#crimeDateReported').html(event.feature.getProperty('datereported'));
+                $('#crimeDescription').html(event.feature.getProperty('description'));
+                $('#crimeLocation').html(event.feature.getProperty('location'));
+                $('#crimeQueryModal').modal('show');
+                if (directionsDisplay.getRouteIndex() >= 0) {
+                    $('#safety-score-modal').hide();
+                    $('#navigate-btn').fadeIn();
+                }
+            });
+            crimeLayer.setMap(map);
+        } else {
+            crimeLayer.setMap(map);
+        }
+    } else {
+        crimeLayer.setMap(null);
+    }
 });
 
 $('.styled-switch').bootstrapSwitch();
@@ -427,7 +512,7 @@ function scoreWalkingDirections(path) {
 
     coordinates = [];
     for(var i=0; i<path.length; i++) {
-        coordinates.push({lat: path[i].G, lon: path[i].K})
+        coordinates.push({lat: path[i].H, lon: path[i].L})
     }
     $.post('https://quiet-crag-2831.herokuapp.com/score',
         JSON.stringify(coordinates),
