@@ -44,7 +44,6 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
-        watchID = navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, {timeout: 5000});
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
     // deviceready Event Handler
