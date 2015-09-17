@@ -288,7 +288,7 @@ h1 {
 #navigate-btn {
     position: absolute;
     bottom: 100px;
-    right: 18px;
+    left: 18px;
     z-index: 99;
     background-color: #ff6600;
     color: #fff;
