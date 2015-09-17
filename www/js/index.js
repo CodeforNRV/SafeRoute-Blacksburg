@@ -446,7 +446,6 @@ function onLocationSuccess(position) {
 
 function onLocationError(error) {
     console.log('onLocationError, code: ' + error.code + '\n message: ' + error.message + '\n');
-    currentLocation && currentLocation.setMap(null);
     $.notify({
         // options
         message: 'Could not get your location'
