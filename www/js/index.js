@@ -291,8 +291,10 @@ $('#reportProblemForm').on('submit', function(e) {
     var doc = {};
     doc["message"] = form[0].value;
     if (form[1].value != "") {
-        doc["roadGid"] = form[1].value;
-
+        doc["email"] = form[1].value;
+    }
+    if (form[2].value != "") {
+        doc["roadGid"] = form[2].value;
     }
     postToDatabase(doc);
 });
@@ -510,7 +512,7 @@ function scoreWalkingDirections(path) {
 
     coordinates = [];
     for(var i=0; i<path.length; i++) {
-        coordinates.push({lat: path[i].H, lon: path[i].L})
+        coordinates.push({lat: path[i].lat(), lon: path[i].lng()})
     }
     $.post('https://quiet-crag-2831.herokuapp.com/score',
         JSON.stringify(coordinates),
@@ -571,6 +573,10 @@ function onBackKeyDown(e) {
 
 function postToDatabase(doc) {
     doc["timestamp"] = new Date();
+    doc["cordova"] = window.device.cordova;
+    doc["platform"] = window.device.platform;
+    doc["version"] = window.device.version;
+    doc["model"] = window.device.model;
     doc = JSON.stringify(doc);
     $.ajax({
         "async": true,
