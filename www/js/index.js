@@ -23,6 +23,7 @@ var directionsDisplay;
 var searchBox;
 var currentLocation = null;
 var roadsLayer = null;
+var crimeLayer = null;
 var accuracyCircle = null;
 var watchID = null;
 var markers = [];
@@ -43,7 +44,6 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
-        watchID = navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, {timeout: 5000});
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
     // deviceready Event Handler
@@ -79,10 +79,7 @@ function setupMap() {
     directionsDisplay.setMap(map);
 
     roadsLayer = new google.maps.Data();
-    $.getJSON("roads.json", function(data) {
-        roadsLayer.addGeoJson(data);
-    });
-
+    roadsLayer.addGeoJson(roadData);
     roadsLayer.setStyle(function(feature) {
         return setMapStyle(feature);
     });
@@ -198,6 +195,94 @@ $('#alternateColors-checkbox').on('switchChange.bootstrapSwitch', function(event
     });
 });
 
+$('#crimeLayer-checkbox').on('switchChange.bootstrapSwitch', function(event, state) {
+    var cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth()-2); //2 months
+    var year = cutoffDate.getFullYear();
+    var month = cutoffDate.getMonth() + 1;
+    var day = cutoffDate.getDate();
+    if(state == true) {
+        if(crimeLayer === null) {
+            crimeLayer = new google.maps.Data();
+            crimeLayer.loadGeoJson('https://quiet-crag-2831.herokuapp.com/crime?startdate='+year+'-'+month+'-'+day);
+            crimeLayer.setStyle(function(feature) {
+                var crimeIcon = null;
+                var crimeCategory = feature.getProperty('crimecode');
+                switch (crimeCategory) {
+                    case "Assault":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Burglary":
+                        crimeIcon = 'img/medium.png';
+                        break;
+                    case "Disturbing the Peace":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "Drugs/Alcohol Violations":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "DUI":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "Fraud":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "Motor Vehicle Theft":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Robbery":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Sex Crimes":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Theft/Larceny":
+                        crimeIcon = 'img/medium.png';
+                        break;
+                    case "Weapons":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    case "Vehicle Break-in/Theft":
+                        crimeIcon = 'img/medium.png';
+                        break;
+                    case "Arson":
+                        crimeIcon = 'img/medium.png';
+                        break;
+                    case "Vandalism":
+                        crimeIcon = 'img/low.png';
+                        break;
+                    case "Homicide":
+                        crimeIcon = 'img/high.png';
+                        break;
+                    default:
+                        crimeIcon = 'img/high.png';
+                        break;
+                }
+                return {
+                    icon: crimeIcon
+                }
+
+            });
+            crimeLayer.addListener('click', function(event) {
+                $('#crimeCategory').html(event.feature.getProperty('crimecode'));
+                $('#crimeDateReported').html(event.feature.getProperty('datereported'));
+                $('#crimeDescription').html(event.feature.getProperty('description'));
+                $('#crimeLocation').html(event.feature.getProperty('location'));
+                $('#crimeQueryModal').modal('show');
+                if (directionsDisplay.getRouteIndex() >= 0) {
+                    $('#safety-score-modal').hide();
+                    $('#navigate-btn').fadeIn();
+                }
+            });
+            crimeLayer.setMap(map);
+        } else {
+            crimeLayer.setMap(map);
+        }
+    } else {
+        crimeLayer.setMap(null);
+    }
+});
+
 $('.styled-switch').bootstrapSwitch();
 
 $('#reportProblemForm').on('submit', function(e) {
@@ -206,8 +291,10 @@ $('#reportProblemForm').on('submit', function(e) {
     var doc = {};
     doc["message"] = form[0].value;
     if (form[1].value != "") {
-        doc["roadGid"] = form[1].value;
-
+        doc["email"] = form[1].value;
+    }
+    if (form[2].value != "") {
+        doc["roadGid"] = form[2].value;
     }
     postToDatabase(doc);
 });
@@ -361,7 +448,6 @@ function onLocationSuccess(position) {
 
 function onLocationError(error) {
     console.log('onLocationError, code: ' + error.code + '\n message: ' + error.message + '\n');
-    currentLocation && currentLocation.setMap(null);
     $.notify({
         // options
         message: 'Could not get your location'
@@ -412,13 +498,12 @@ var scoreDetails = {
     '2' : {'panel': 'panel-warning', 'info': 'Looks OK'},
     '1' : {'panel': 'panel-danger', 'info': 'Looks Dangerous'}
 };
-var tooManyPointsForSafetyScore = false;
 
 function scoreWalkingDirections(path) {
     $('#safety-score-modal').show();
     $('#safety-score-loading').show();
     $('#safety-score-result').hide();
-    $('#too-many-points-for-safety-score').hide();
+    $('#database-error').hide();
 
     $('#safety-score-modal-dismiss').click(function() {
         $('#safety-score-modal').hide();
@@ -427,23 +512,21 @@ function scoreWalkingDirections(path) {
 
     coordinates = [];
     for(var i=0; i<path.length; i++) {
-        if(i > 100) {
-            tooManyPointsForSafetyScore = true;
-            break;
-        }
-        coordinates.push({lat: path[i].G, lon: path[i].K})
+        coordinates.push({lat: path[i].lat(), lon: path[i].lng()})
     }
-    $.post('https://polar-oasis-3769.herokuapp.com/score',
+    $.post('https://quiet-crag-2831.herokuapp.com/score',
         JSON.stringify(coordinates),
         processWalkingDirectionsScore);
 }
 
 function processWalkingDirectionsScore(result) {
-    result = $.parseJSON(result);
     console.log(result);
     $.each(scoreTypes, function() {
         var scoreType = this;
-        var score = '' + Math.round(result.scores[scoreType]);
+        var score = result.scores[scoreType];
+        if (score >= 2.75) { score = '3'; }
+        else if (score >= 2.25) { score = '2'; }
+        else { score = '1'; }
         var detail = scoreDetails[score];
         var id = '#safety-score-result-' + scoreType;
 
@@ -451,16 +534,12 @@ function processWalkingDirectionsScore(result) {
         $(id + ' .safety-info').html(detail.info);
     });
 
-    if(tooManyPointsForSafetyScore) {
-        tooManyPointsForSafetyScore = false;
+    if(result.error) {
         $('#safety-score-modal').show();
         $('#safety-score-loading').hide();
-        $('#too-many-points-for-safety-score').show();
-        setTimeout(function () {
-            $('#too-many-points-for-safety-score').hide();
-            $('#safety-score-result').show();
-        }, 3000);
+        $('#database-error').show();
     } else {
+        $('#database-error').hide();
         updateRouteDivs();
         $('#safety-score-modal').show();
         $('#safety-score-loading').hide();
@@ -494,6 +573,10 @@ function onBackKeyDown(e) {
 
 function postToDatabase(doc) {
     doc["timestamp"] = new Date();
+    doc["cordova"] = window.device.cordova;
+    doc["platform"] = window.device.platform;
+    doc["version"] = window.device.version;
+    doc["model"] = window.device.model;
     doc = JSON.stringify(doc);
     $.ajax({
         "async": true,

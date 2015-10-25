@@ -280,7 +280,7 @@ h1 {
 #locate-btn {
     position: absolute;
     bottom: 30px;
-    right: 18px;
+    left: 18px;
     z-index: 99;
     background-color: #660000;
     color: #fff;
@@ -288,7 +288,7 @@ h1 {
 #navigate-btn {
     position: absolute;
     bottom: 100px;
-    right: 18px;
+    left: 18px;
     z-index: 99;
     background-color: #ff6600;
     color: #fff;
@@ -409,4 +409,8 @@ h1 {
 #reportModal button.pull-right {
     margin-left: 100%;
     margin-bottom: 10px;
+}
+
+#navigate-btn {
+    display: none;
 }
